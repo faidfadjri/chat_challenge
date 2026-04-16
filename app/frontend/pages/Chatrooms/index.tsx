@@ -7,6 +7,7 @@ const consumer = createConsumer();
 
 const ChatroomIndex = () => {
   const [isJoined, setIsJoined] = useState(false);
+  const [roomName, setRoomName] = useState("");
   const [messages, setMessages] = useState<{ id: number, content: string }[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
   const channelRef = useRef<Subscription | null>(null);
@@ -21,15 +22,19 @@ const ChatroomIndex = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleJoin = () => {
-    if (channelRef.current) return;
+  const handleJoin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (channelRef.current || !roomName.trim()) return;
 
-    // Connect to Rails ChatroomChannel
-    const channel = consumer.subscriptions.create("ChatroomChannel", {
-      received(data: { content: string }) {
-        setMessages((prev) => [...prev, { id: Date.now() + Math.random(), content: data.content }]);
+    // Connect to Rails ChatroomChannel using the dynamic 'room' param
+    const channel = consumer.subscriptions.create(
+      { channel: "ChatroomChannel", room: roomName.trim() },
+      {
+        received(data: { content: string }) {
+          setMessages((prev) => [...prev, { id: Date.now() + Math.random(), content: data.content }]);
+        }
       }
-    });
+    );
 
     channelRef.current = channel;
     setIsJoined(true);
@@ -57,7 +62,7 @@ const ChatroomIndex = () => {
     <div className="chat-app-container">
       <div className="chat-glass-panel">
         <div className="chat-header">
-          <h1>ChatRoom</h1>
+          <h1>ChatRoom {isJoined && <span style={{fontSize: '1rem', color: 'var(--text-muted)'}}>#{roomName}</span>}</h1>
           <div className="status-badge">
             <span className={`status-dot ${isJoined ? 'active' : ''}`}></span>
             {isJoined ? 'Connected' : 'Disconnected'}
@@ -68,11 +73,22 @@ const ChatroomIndex = () => {
           <div className="join-overlay">
             <div className="join-title">Welcome to the Chat</div>
             <div className="join-subtitle">
-              Join our real-time messaging channel to instantly connect with others here.
+              Enter a dynamic channel name below to join or create a specific room.
             </div>
-            <button className="btn-primary" onClick={handleJoin}>
-              Join Channel
-            </button>
+            <form onSubmit={handleJoin} style={{ display: 'flex', gap: '8px', zIndex: 10 }}>
+              <input 
+                type="text" 
+                className="message-input" 
+                placeholder="Channel Name..." 
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                autoFocus
+                style={{ minWidth: '250px' }}
+              />
+              <button type="submit" className="btn-primary" disabled={!roomName.trim()}>
+                Join Channel
+              </button>
+            </form>
           </div>
         ) : (
           <div className="chat-area">
