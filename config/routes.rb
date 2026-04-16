@@ -21,6 +21,10 @@ Rails.application.routes.draw do
   root "chatrooms#index"
   get "chatrooms", to: "chatrooms#index"
 
+  # Auth Routes
+  get "login", to: "auth#login"
+  get "signup", to: "auth#signup"
+
 
   # Action Cable for Websocket
   mount ActionCable.server => "/cable"
