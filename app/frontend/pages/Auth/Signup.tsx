@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Link, Head } from '@inertiajs/react';
-import './Auth.css';
+import React, { useState } from "react";
+import { Link, Head } from "@inertiajs/react";
+import "./Auth.css";
 
 const Signup = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Signup attempt with', name, email, password);
+    console.log("Signup attempt with", name, email, password);
     // Submit registration data here...
   };
 
@@ -25,7 +25,7 @@ const Signup = () => {
             <h1>Create Account</h1>
             <p>Join our real-time messaging platform</p>
           </div>
-          
+
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name">Full Name</label>
@@ -52,7 +52,7 @@ const Signup = () => {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -65,14 +65,14 @@ const Signup = () => {
                 required
               />
             </div>
-            
+
             <button type="submit" className="btn-auth">
               Get Started
             </button>
           </form>
-          
+
           <div className="auth-footer">
-            Already have an account? 
+            Already have an account?
             <Link href="/login" className="auth-link">
               Log in
             </Link>

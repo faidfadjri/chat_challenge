@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Link, Head } from '@inertiajs/react';
-import './Auth.css';
+import React, { useState } from "react";
+import { Link, Head } from "@inertiajs/react";
+import "./Auth.css";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt with', email, password);
+    console.log("Login attempt with", email, password);
     // Submit login data here...
   };
 
@@ -24,7 +24,7 @@ const Login = () => {
             <h1>Welcome Back</h1>
             <p>Log in to access your chatrooms</p>
           </div>
-          
+
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="email">Email Address</label>
@@ -38,7 +38,7 @@ const Login = () => {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -51,14 +51,14 @@ const Login = () => {
                 required
               />
             </div>
-            
+
             <button type="submit" className="btn-auth">
               Sign In
             </button>
           </form>
-          
+
           <div className="auth-footer">
-            Don't have an account? 
+            Don't have an account?
             <Link href="/signup" className="auth-link">
               Sign up
             </Link>

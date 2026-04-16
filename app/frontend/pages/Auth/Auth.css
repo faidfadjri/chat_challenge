@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 :root {
   --auth-primary: #8b5cf6;
@@ -11,11 +11,16 @@
   --auth-text-muted: #94a3b8;
 }
 
-body, html {
-  font-family: 'Inter', sans-serif;
+body,
+html {
+  font-family: "Inter", sans-serif;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, var(--auth-bg-gradient-start), var(--auth-bg-gradient-end));
+  background: linear-gradient(
+    135deg,
+    var(--auth-bg-gradient-start),
+    var(--auth-bg-gradient-end)
+  );
   color: var(--auth-text-main);
   height: 100vh;
   width: 100vw;

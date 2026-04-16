@@ -1,6 +1,6 @@
 class ChatroomsController < ApplicationController
   def index
-    render inertia: "Chatrooms/index", props: {
+    render inertia: "Chat/index", props: {
       rails_version: Rails.version,
       ruby_version: RUBY_DESCRIPTION,
       rack_version: Rack.release,
