@@ -148,3 +148,21 @@ jobs:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+
+  deploy:
+    name: Deploy to VPS
+    needs: [test, system-test, lint, scan_ruby, scan_js] # Ensures code is strictly bug-free beforehand
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: SSH Trigger Remote Git Pull & Docker Rebuild
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /faidfadjri/chitchat
+            git pull origin master
+            docker compose up -d --build
