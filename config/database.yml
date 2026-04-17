@@ -13,9 +13,10 @@ default: &default
   adapter: mysql2
   encoding: utf8mb4
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password: <%= ENV.fetch("DB_PASSWORD", "bismillah") %>
-  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  username: <%= ENV["CHATROOM_DATABASE_USERNAME"] || "root" %>
+  password: <%= ENV["CHATROOM_DATABASE_PASSWORD"] || ENV["DB_PASSWORD"] || "bismillah" %>
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  port: <%= ENV.fetch("DB_PORT", "3306") %>
 
 development:
   <<: *default

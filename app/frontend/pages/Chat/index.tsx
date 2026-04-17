@@ -77,7 +77,7 @@ const ChatIndex = ({ channels }: { channels: Channel[] }) => {
       <div className="chat-glass-panel">
         <div className="chat-header">
           <h1>
-            ChatRoom{" "}
+            ChitChat{" "}
             {isJoined && (
               <span style={{ fontSize: "1rem", color: "var(--text-muted)" }}>
                 #{roomName}

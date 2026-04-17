@@ -69,3 +69,4 @@ gem "vite_rails", "~> 3.10"
 
 gem "fiddle", "~> 1.1"
 gem "redis", "~> 5.3"
+gem "dotenv-rails"
