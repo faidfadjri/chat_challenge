@@ -45,8 +45,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install JS dependencies
         run: npm ci
@@ -109,8 +109,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install JS dependencies
         run: npm ci
@@ -142,7 +142,7 @@ jobs:
           script: |
             set -e
 
-            APP_DIR="/faidfadjri/chatroom"
+            APP_DIR="/chatroom"
 
             if [ ! -d "$APP_DIR" ]; then
               git clone https://github.com/faidfadjri/realtime-chat.git $APP_DIR
