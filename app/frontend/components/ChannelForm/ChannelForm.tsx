@@ -71,30 +71,25 @@ export const ChannelForm = ({
         ))}
       </div>
 
-      <form
-        onSubmit={handleJoin}
-        style={{ display: "flex", flexDirection: "column", gap: "12px", zIndex: 10, marginTop: "16px" }}
-      >
+      <form onSubmit={handleJoin} className="join-form">
         <input
           type="text"
           className="message-input"
           placeholder="Your Username..."
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          style={{ width: "100%" }}
         />
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div className="join-inputs">
           <input
             type="text"
-            className="message-input"
+            className="message-input channel-input"
             placeholder="Channel Name..."
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
-            style={{ flex: 1, minWidth: "250px" }}
           />
           <button
             type="submit"
-            className="btn-primary"
+            className="btn-primary join-btn"
             disabled={!roomName.trim() || !userName.trim()}
           >
             Join Channel

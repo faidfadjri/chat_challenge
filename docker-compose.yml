@@ -6,8 +6,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${CHATROOM_DATABASE}
-      # JANGAN ada MYSQL_USER: root di sini!
-      # Hapus atau ganti ke user lain kalau mau, tapi mending hapus dulu.
     ports:
       - "3307:3306"
     volumes:

@@ -21,16 +21,61 @@
 
 .channel .channel-button {
   cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  padding: 0;
 }
 
 .channel .delete-button {
-  background-color: #1c155a;
+  background-color: rgba(0, 0, 0, 0.2);
   color: white;
   border: none;
-  padding: 2px;
+  padding: 4px;
   border-radius: 100%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.channel .delete-button:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.join-inputs {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.channel-input {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .join-inputs {
+    flex-direction: column;
+  }
+  
+  .join-btn {
+    width: 100%;
+  }
+
+  .channel {
+    height: auto;
+    padding: 0.75rem 1rem;
+  }
 }
