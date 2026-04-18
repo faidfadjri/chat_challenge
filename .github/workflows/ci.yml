@@ -163,6 +163,11 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /faidfadjri/chatroom
-            git pull origin master
+            if [ -d "/faidfadjri/chatroom" ]; then
+              cd /faidfadjri/chatroom
+              git pull origin master
+            else
+              git clone https://github.com/faidfadjri/realtime-chat.git /faidfadjri/chatroom
+              cd /faidfadjri/chatroom
+            fi
             docker compose up -d --build
