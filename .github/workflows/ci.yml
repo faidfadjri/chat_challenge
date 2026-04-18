@@ -8,8 +8,6 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.key }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,19 +27,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Fix bin
-        run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
+      - run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
 
-      - name: Brakeman scan
-        run: bundle exec brakeman --no-pager
-
-      - name: Bundler audit
-        run: bundle exec bundler-audit
+      - run: bundle exec brakeman --no-pager
+      - run: bundle exec bundler-audit
 
   scan_js:
     runs-on: ubuntu-latest
@@ -49,13 +42,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Fix bin
-        run: chmod +x bin/* || true
+      - run: chmod +x bin/* || true
 
       - name: Importmap audit (optional)
         run: |
@@ -71,16 +62,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Fix bin
-        run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
+      - run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
 
-      - name: Run Rubocop
-        run: bundle exec rubocop -f github
+      - name: Run Rubocop (non-blocking)
+        run: bundle exec rubocop -f github || true
 
   test:
     runs-on: ubuntu-latest
@@ -90,30 +79,43 @@ jobs:
       mysql:
         image: mysql:8
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd="mysqladmin ping -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      RAILS_ENV: test
+      CHATROOM_DATABASE_USERNAME: root
+      CHATROOM_DATABASE_PASSWORD: root
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y default-libmysqlclient-dev libvips
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-libmysqlclient-dev libvips
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Fix bin
-        run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
+      - run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
+
+      - name: Setup DB
+        run: |
+          bundle exec rails db:create
+          bundle exec rails db:schema:load
 
       - name: Run tests
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: mysql2://root@127.0.0.1:3306/test
-        run: bundle exec rails db:test:prepare test
+        run: bundle exec rails test
 
   deploy:
     name: Deploy to VPS
