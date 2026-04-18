@@ -102,37 +102,28 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
             set -e
-
             APP_DIR="$HOME/chatroom"
 
-            if [ -d "$APP_DIR/.git" ]; then
-              cd "$APP_DIR"
-              git fetch origin master
-              git reset --hard origin/master
-            else
-              git clone https://github.com/faidfadjri/realtime-chat.git "$APP_DIR"
-              cd "$APP_DIR"
-            fi
+            cd "$APP_DIR"
+            git fetch origin master
+            git reset --hard origin/master
 
-            # 1. Buat file .env
             echo "${{ secrets.ENV_FILE }}" > .env
-
-            # 2. Pastikan RAILS_MASTER_KEY ada di .env (double check)
-            if ! grep -q "RAILS_MASTER_KEY" .env; then
-              echo "RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }}" >> .env
-            fi
-
-            # 3. Create master.key file so Rails won't complain
-            # Ini solusi buat error lo tadi!
             echo "${{ secrets.RAILS_MASTER_KEY }}" > config/master.key
             chmod 600 config/master.key
 
-            # 4. Docker action
-            docker compose down
-            # Pakai --build agar Dockerfile mendeteksi perubahan .env/master.key jika di-copy
-            docker compose up -d --build
+            # 1. Build dulu tanpa jalanin container (biar fokus hemat RAM)
+            docker compose build --pull
 
-            # 5. Optional: Run migration auto
+            # 2. Matikan yang lama, nyalakan yang baru
+            docker compose down
+            docker compose up -d
+
+            # 3. Kasih jeda 10 detik biar DB & Rails napas dulu sebelum migrasi
+            echo "Waiting for services to stabilize..."
+            sleep 10
+
+            # 4. Jalankan migrasi (pake -T biar ga interaktif)
             docker compose exec -T web bin/rails db:prepare
 
-            echo "✅ Deployment success: master.key synced & containers up"
+            echo "✅ Deployment success!"
