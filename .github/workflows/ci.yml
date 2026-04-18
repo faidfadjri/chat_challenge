@@ -6,73 +6,43 @@ on:
     branches: [master]
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Fix shebang & permissions (Windows compatibility)
-        run: |
-          chmod +x bin/* || true
-          sed -i 's/ruby.exe/ruby/g' bin/* || true
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
+  # Job setup biasanya digunakan untuk caching, tapi karena ruby/setup-ruby sudah handle,
+  # kita bisa langsung ke scanning/testing untuk menghemat waktu (paralel).
 
   scan_ruby:
     runs-on: ubuntu-latest
-    needs: setup
     steps:
       - uses: actions/checkout@v4
-
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
       - run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
-
       - run: bundle exec brakeman --no-pager
-      - run: bundle exec bundler-audit
+      - run: bundle exec bundler-audit --update
 
   scan_js:
     runs-on: ubuntu-latest
-    needs: setup
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
-
-      - name: Install JS dependencies
-        run: npm ci
-
-      - name: Scan for security vulnerabilities in JS dependencies
-        run: npm audit --audit-level=high
+      - run: npm ci
+      - run: npm audit --audit-level=high
 
   lint:
     runs-on: ubuntu-latest
-    needs: setup
     steps:
       - uses: actions/checkout@v4
-
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
       - run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
-
-      - name: Run Rubocop (non-blocking)
-        run: bundle exec rubocop -f github || true
+      - run: bundle exec rubocop -f github || true
 
   test:
     runs-on: ubuntu-latest
-    needs: setup
-
     services:
       mysql:
         image: mysql:8
@@ -96,32 +66,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Install system deps
         run: |
           sudo apt-get update
           sudo apt-get install -y default-libmysqlclient-dev libvips
-
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
-
-      - name: Install JS dependencies
-        run: npm ci
-
+      - run: npm ci
       - run: chmod +x bin/* && sed -i 's/ruby.exe/ruby/g' bin/* || true
-
       - name: Setup DB
         run: |
           bundle exec rails db:create
           bundle exec rails db:schema:load
-
       - name: Run tests
         run: bundle exec rails test
 
@@ -153,9 +114,25 @@ jobs:
               cd "$APP_DIR"
             fi
 
+            # 1. Buat file .env
             echo "${{ secrets.ENV_FILE }}" > .env
 
+            # 2. Pastikan RAILS_MASTER_KEY ada di .env (double check)
+            if ! grep -q "RAILS_MASTER_KEY" .env; then
+              echo "RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }}" >> .env
+            fi
+
+            # 3. Create master.key file so Rails won't complain
+            # Ini solusi buat error lo tadi!
+            echo "${{ secrets.RAILS_MASTER_KEY }}" > config/master.key
+            chmod 600 config/master.key
+
+            # 4. Docker action
             docker compose down
+            # Pakai --build agar Dockerfile mendeteksi perubahan .env/master.key jika di-copy
             docker compose up -d --build
 
-            echo "Deployment success with full ENV_FILE"
+            # 5. Optional: Run migration auto
+            docker compose exec -T web bin/rails db:prepare
+
+            echo "✅ Deployment success: master.key synced & containers up"
