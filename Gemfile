@@ -65,7 +65,7 @@ end
 
 gem "inertia_rails", "~> 3.21"
 
-gem "vite_rails", "~> 3.10"
+gem "vite_rails", "~> 3.11"
 
 gem "fiddle", "~> 1.1"
 gem "redis", "~> 5.3"
